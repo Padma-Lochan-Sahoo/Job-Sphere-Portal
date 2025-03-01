@@ -1,6 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState,useContext } from 'react'
 import Quill from 'quill'
 import { JobCategories, JobLocations } from '../assets/assets'
+import axios from 'axios'
+import { AppContext } from '../context/AppContext'
+import { toast } from 'react-toastify'
 
 const AddJob = () => {
 
@@ -12,18 +15,53 @@ const AddJob = () => {
 
     const editorRef = useRef(null)
     const quillRef = useRef(null)
+    
+    const { backendUrl,companyToken } = useContext(AppContext)
 
-    useEffect(()=>{
-        //Initiate Quill only once
-        if (!quillRef.current && editorRef.current) {
-            quillRef.current = new Quill(editorRef.current,{
-                theme:'snow',
-            })
+    const onSubmitHandler = async (e) =>{
+        e.preventDefault();
+
+        try {
+            const description = quillRef.current.root.innerHTML
+
+            const { data } = await axios.post(backendUrl+'/api/company/post-job',
+                { title , description ,location ,category,level,salary},{
+                    headers: {token: companyToken}
+                }
+            )
+
+            if (!title || !description || !location || !category || !salary) {
+                return toast.error("Please fill all the fields!");
+            }
+            
+
+            console.log("Response from server:", data);
+
+            if(data.success){
+                toast.success(data.message)
+                setTitle('')
+                setSalary(0)
+                quillRef.current.root.innerHTML = ""
+            } else {
+                toast.error(data.message)
+            }
+        } catch (error) {
+            
         }
-    },[])
+
+    }
+
+    useEffect(() => {
+        if (!quillRef.current && editorRef.current) {
+            quillRef.current = new Quill(editorRef.current, {
+                theme: 'snow'
+            });
+        }
+    }, []);
+    
 
   return (
-    <form className='container p-4 flex flex-col w-full gap-3 items-start'>
+    <form onSubmit={onSubmitHandler} className='container p-4 flex flex-col w-full gap-3 items-start'>
         <div className='w-full'> 
         <p className='mb-2'>Job Title</p>
         <input type="text" placeholder='Type here'
@@ -44,6 +82,7 @@ const AddJob = () => {
             <p className='mb-2'>Job Category</p>
             <select 
             className='w-full px-3 py-2 border-2 border-gray-300 rounded'
+            value={category} // ✅ Add this
             onChange={e=> setCategory(e.target.value)}>
                 {JobCategories.map((category,index)=>(
                     <option key={index} value={category}>{category}</option>

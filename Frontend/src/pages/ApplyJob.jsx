@@ -8,27 +8,37 @@ import Footer from '../components/Footer'
 import kconvert from 'k-convert';
 import moment from 'moment';
 import JobCard from '../components/JobCard'
+import { toast } from "react-toastify";
+import axios from 'axios'
 
 const ApplyJob = () => {
   const { id } = useParams()
   
   const [jobData,setJobData] = useState(null)
 
-  const { jobs } = useContext(AppContext)
+  const { jobs,backendUrl } = useContext(AppContext)
 
   const fetchJob = async () => {
-    const data = jobs.filter((job)=> job._id === id)
-    if(data.length !== 0){
-      setJobData(data[0])
-      // console.log(data[0]);
+    try {
+      const { data } = await axios.get(backendUrl + `/api/jobs/${id}`);
+      console.log("API Response:", data); // Log the full response
+      if (data.success) {
+        setJobData(data.job); 
+        console.log("Job data:", data.job); // Log jobs array
+      }else{
+        toast.error(data.message || "Failed to fetch job");
+      }
+    } catch (error) {
+      console.error("Error fetching job:", error);
+      toast.error(error.message)
     }
-  }
+  } 
 
   useEffect(()=>{
-    if (jobs.length>0) {
+    
       fetchJob()
-    }
-  },[id,jobs])
+    
+  },[id])
   return jobData ?(
     <>
       <Navbar />
