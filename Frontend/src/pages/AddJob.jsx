@@ -11,7 +11,7 @@ const AddJob = () => {
     const [location,setLocation] = useState('Bangalore')
     const [category,setCategory] = useState('Programming')
     const [level,setLevel] = useState('Beginner level')
-    const [salary,setSalary] = useState('Beginner level')
+    const [salary,setSalary] = useState(0)
 
     const editorRef = useRef(null)
     const quillRef = useRef(null)
@@ -22,11 +22,14 @@ const AddJob = () => {
         e.preventDefault();
 
         try {
-            const description = quillRef.current.root.innerHTML
+            const description = quillRef.current?.root?.innerHTML || "";
+            if (!description.trim()) {
+                return toast.error("Job description is required!");
+            }
 
             const { data } = await axios.post(backendUrl+'/api/company/post-job',
                 { title , description ,location ,category,level,salary},{
-                    headers: {token: companyToken}
+                    headers: { Authorization: `Bearer ${companyToken}` }
                 }
             )
 
@@ -35,7 +38,6 @@ const AddJob = () => {
             }
             
 
-            console.log("Response from server:", data);
 
             if(data.success){
                 toast.success(data.message)
@@ -117,7 +119,7 @@ const AddJob = () => {
         <input type="Number" placeholder='2500' 
         min={0}
         className='w-full px-3 py-2 border-2 border-gray-300 rounded sm:w-[120px]'
-        onChange={e=>setSalary(e.target.value)}
+        onChange={e=>setSalary(Number(e.target.value))}
         />
     </div>
     <button
