@@ -13,9 +13,7 @@
       }
     ],
     "env": {
-      "PORT": "5000",
-      "MONGO_URI": "mongodb+srv://padma27:Padma27@cluster0.ihcfb.mongodb.net",
-      "CLERK_WEBHOOK_SECRET": "whsec_0o2Er4g6mqVLhKTJZ6tN8YdD23rPllHO"
+      "MONGO_URI": "mongodb+srv://padma27:Padma27@cluster0.ihcfb.mongodb.net"
     }
   }
   
