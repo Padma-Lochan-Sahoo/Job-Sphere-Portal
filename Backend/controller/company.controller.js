@@ -123,8 +123,10 @@ const getCompanyData = async (req , res) => {
 // Post a new job
 const postJob = async (req , res) => {
     const { title , description , location ,salary, level ,category} = req.body
-    
-    const companyId = req.company._id
+    if (!req.company || !req.company._id) {
+        return res.status(400).json({ success: false, message: "Company authentication failed" });
+    }
+    const companyId  = req.company?._id
 
     try {
         const newJob = new Job({
@@ -154,16 +156,30 @@ const postJob = async (req , res) => {
 
 // Get Company Job Applicants
 const getJobApplicants = async (req , res) => {
-    
+    try {
+        const companyId = req.company._id
+
+        // find job application for the user and populate related data
+        const applications = await JobApplication.find({companyId})
+        .populate('userId','name image resume')
+        .populate('jobId','title location salary level category')
+        .exec()
+        res.json({
+            success: true ,
+            message: "Job applicants retrieved successfully",
+            applications
+            })
+    } catch (error) {
+        res.json({success:false,message:error.message})
+    }
 }
 
 // Get Company Posted Jobs
 const getCompanyPostedJobs = async (req , res) => {
     try {
         const companyId = req.company._id
-        const jobs = await Job.find({companyId})
-
-        // TODO: Adding no. of applicants info in data
+        const jobs = await Job.find({companyId}).populate("companyId", "name image");
+        // Adding no. of applicants info in data
         const jobsData = await Promise.all(jobs.map(async (job) => {
             const applicants = await JobApplication.find({jobId: job._id})
             return {
@@ -186,7 +202,22 @@ const getCompanyPostedJobs = async (req , res) => {
 
 // Change Job Application Status
 const changeJobApplicationStatus = async (req , res) => {
-
+    try {
+        
+        const { id , status } = req.body
+    
+        // Find Job Application and update status
+        await JobApplication.findOneAndUpdate({_id: id},{status})
+        res.json({
+            success: true ,
+            message: "Job application status updated successfully"
+        })
+    } catch (error) {
+        res.json({
+            success: false ,
+            message: error.message
+        })
+    }
 }
 
 // Change Job Visibility

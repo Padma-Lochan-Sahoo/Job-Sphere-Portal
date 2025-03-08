@@ -4,23 +4,25 @@ import Job from "../models/job.models.js"
 
 
 // Get all Jobs
-export const getJobs = async (req,res) => {
+export const getJobs = async (req, res) => {
     try {
-        const jobs = await Job.find({ visible: true})
-        .populate({path:'companyId',select:'-password'})
+        const jobs = await Job.find({ visible: true })
+            .populate("companyId", "name image email")
 
+        const validJobs = jobs.filter(job => job.companyId !== null);
 
         res.json({
             success: true,
-            jobs
-        })
+            jobs: validJobs
+        });
     } catch (error) {
-        res.json({
+        res.status(500).json({
             success: false,
             message: error.message
-        })
+        });
     }
-}
+};
+
 
 
 // Get a single job by id
