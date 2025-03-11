@@ -4,6 +4,8 @@ import { v2 as cloudinary } from 'cloudinary'
 import generateToken from "../utils/generateToken.js";
 import Job from "../models/job.models.js";
 import JobApplication from "../models/jobApplication.models.js";
+import transporter from "../config/nodemailer.js";
+import crypto from "crypto";
 
 // Register new company
 const registerCompany = async (req , res) => {
@@ -207,11 +209,17 @@ const changeJobApplicationStatus = async (req , res) => {
         const { id , status } = req.body
     
         // Find Job Application and update status
-        await JobApplication.findOneAndUpdate({_id: id},{status})
+        const updatedApplication = await JobApplication.findOneAndUpdate(
+            { _id: id }, 
+            { status }, 
+            { new: true } // Ensures it returns the updated document
+        );
         res.json({
-            success: true ,
-            message: "Job application status updated successfully"
-        })
+            success: true,
+            message: "Job application status updated successfully",
+            application: updatedApplication // Return updated data
+        });
+        
     } catch (error) {
         res.json({
             success: false ,
@@ -243,6 +251,89 @@ const changeJobVisibility = async (req , res) => {
     }
 }   
 
+// 1️⃣ Forgot Password - Generate Token & Send Email
+const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        // Check if company exists
+        const company = await Company.findOne({ email });
+        if (!company) {
+            return res.status(404).json({ success: false, message: "Company not found" });
+        }
+
+        // Generate a secure reset token
+        const resetToken = crypto.randomBytes(32).toString("hex");
+
+        // Hash token before storing in database
+        const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+
+        company.resetPasswordToken = hashedToken;
+        company.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // Valid for 10 minutes
+
+        await company.save();
+
+        // Construct reset link
+        const resetLink = `${process.env.FRONTEND_URL}/reset-password/${company._id}/${resetToken}`;
+        console.log("🔗 Reset Link:", resetLink); // ✅ Debugging
+
+        // Send reset email
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: "Password Reset Request",
+            html: `<p>You requested a password reset. Click the link below to reset your password:</p>
+                   <a href="${resetLink}" target="_blank">${resetLink}</a>
+                   <p>This link is valid for 10 minutes.</p>`,
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        res.json({ success: true, message: "Password reset link sent to your email",resetLink});
+
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// 2️⃣ Reset Password - Verify Token & Update Password
+const resetPassword = async (req, res) => {
+    try {
+        const { id, token } = req.params;
+        const { newPassword } = req.body;
+
+        // Hash token to match the stored hashed token
+        const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+        // Find company by ID and verify token validity
+        const company = await Company.findOne({
+            _id: id,
+            resetPasswordToken: hashedToken,
+            resetPasswordExpires: { $gt: Date.now() },  // Ensure token is still valid
+        });
+
+        if (!company) {
+            return res.status(400).json({ success: false, message: "Invalid or expired token" });
+        }
+
+        // Hash new password
+        const salt = await bcrypt.genSalt(10);
+        company.password = await bcrypt.hash(newPassword, salt);
+
+        // Clear reset token fields
+        company.resetPasswordToken = undefined;
+        company.resetPasswordExpires = undefined;
+
+        await company.save();
+
+        res.json({ success: true, message: "Password updated successfully" });
+
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+
 // export all the controller functions
 export { 
     registerCompany ,
@@ -252,5 +343,7 @@ export {
     getJobApplicants,
     getCompanyPostedJobs , 
     changeJobApplicationStatus , 
-    changeJobVisibility 
+    changeJobVisibility ,
+    forgotPassword,
+    resetPassword
 }

@@ -1,7 +1,7 @@
 import express from 'express'
 
 const router = express.Router()
-import { changeJobApplicationStatus, changeJobVisibility, getCompanyData, getCompanyPostedJobs, getJobApplicants, loginCompany, postJob, registerCompany } from "../controller/company.controller.js"
+import { changeJobApplicationStatus, changeJobVisibility, getCompanyData, getCompanyPostedJobs, getJobApplicants, loginCompany, postJob, registerCompany, forgotPassword, resetPassword } from "../controller/company.controller.js"
 import upload from '../config/multer.js'
 import { protectCompany } from '../middleware/auth.middleware.js'
 
@@ -30,5 +30,10 @@ router.post('/change-status',protectCompany,changeJobApplicationStatus)
 // Change Application visibility
 router.post('/change-visibility',protectCompany,changeJobVisibility)
 
+// Forgot Password - Request OTP
+router.post('/forgot-password', forgotPassword);
+
+// Reset Password - Verify OTP and Update Password
+router.post('/reset-password/:id/:token', resetPassword);
 
 export default router

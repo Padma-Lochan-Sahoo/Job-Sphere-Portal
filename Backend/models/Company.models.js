@@ -18,6 +18,8 @@ const companySchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    resetPasswordToken: {type :String}, 
+    resetPasswordExpires: {type: Date}
 })
 
 const Company = mongoose.model('Company',companySchema)
