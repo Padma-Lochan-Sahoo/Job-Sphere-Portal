@@ -241,3 +241,84 @@ export const updateUserResume = async (req, res) => {
       res.status(500).json({ success: false, message: error.message });
     }
   };
+
+export const forgotPasswordUser = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        // Check if user exists
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        // Generate a secure reset token
+        const resetToken = crypto.randomBytes(32).toString("hex");
+
+        // Hash token before storing in database
+        const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+
+        user.resetPasswordToken = hashedToken;
+        user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // Valid for 10 minutes
+
+        await user.save();
+
+        // Construct reset link
+        const resetLink = `${process.env.FRONTEND_URL}/reset-password/${user._id}/${resetToken}`;
+
+        // Send reset email
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: "Password Reset Request",
+            html: `<p>You requested a password reset. Click the link below to reset your password:</p>
+                   <a href="${resetLink}" target="_blank">${resetLink}</a>
+                   <p>This link is valid for 10 minutes.</p>`,
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        res.json({ success: true, message: "Password reset link sent to your email", resetLink });
+
+    } catch (error) {
+        console.error("Error in forgotPasswordUser:", error);
+        res.status(500).json({ success: false, message: "Failed to process your request" });
+    }
+};
+
+export const resetPasswordUser = async (req, res) => {
+    try {
+        const { id, token } = req.params;
+        const { newPassword } = req.body;
+
+        // Hash token to match the stored hashed token
+        const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+        // Find user by ID and verify token validity
+        const user = await User.findOne({
+            _id: id,
+            resetPasswordToken: hashedToken,
+            resetPasswordExpires: { $gt: Date.now() },  // Ensure token is still valid
+        });
+
+        if (!user) {
+            return res.status(400).json({ success: false, message: "Invalid or expired token" });
+        }
+
+        // Hash new password
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+
+        // Clear reset token fields
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+
+        await user.save();
+
+        res.json({ success: true, message: "Password updated successfully" });
+
+    } catch (error) {
+        console.error("Error in resetPasswordUser:", error);
+        res.status(500).json({ success: false, message: "Failed to reset password" });
+    }
+};

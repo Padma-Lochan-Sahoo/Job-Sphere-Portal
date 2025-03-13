@@ -275,7 +275,6 @@ const forgotPassword = async (req, res) => {
 
         // Construct reset link
         const resetLink = `${process.env.FRONTEND_URL}/reset-password/${company._id}/${resetToken}`;
-        console.log("🔗 Reset Link:", resetLink); // ✅ Debugging
 
         // Send reset email
         const mailOptions = {
@@ -289,47 +288,56 @@ const forgotPassword = async (req, res) => {
 
         await transporter.sendMail(mailOptions);
 
-        res.json({ success: true, message: "Password reset link sent to your email",resetLink});
+        res.json({ success: true, message: "Password reset link sent to your email", resetLink });
 
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error("Error in forgotPassword:", error);
+        res.status(500).json({ success: false, message: "Failed to process your request" });
     }
 };
 
 // 2️⃣ Reset Password - Verify Token & Update Password
 const resetPassword = async (req, res) => {
     try {
-        const { id, token } = req.params;
+        const { id, token } = req.params; // Get id and token from URL params
         const { newPassword } = req.body;
 
-        // Hash token to match the stored hashed token
-        const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+        // Validate newPassword
+        if (!newPassword || newPassword.length < 6) {
+            return res.status(400).json({ success: false, message: "Password must be at least 6 characters long" });
+        }
 
-        // Find company by ID and verify token validity
+        // Hash the token to match the stored hashed token
+        const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+        // Find the company by ID and verify token validity
         const company = await Company.findOne({
-            _id: id,
+            _id: id, // Use the id to find the specific company
             resetPasswordToken: hashedToken,
-            resetPasswordExpires: { $gt: Date.now() },  // Ensure token is still valid
+            resetPasswordExpires: { $gt: Date.now() }, // Ensure token is still valid
         });
 
         if (!company) {
             return res.status(400).json({ success: false, message: "Invalid or expired token" });
         }
 
-        // Hash new password
+        // Hash the new password
         const salt = await bcrypt.genSalt(10);
         company.password = await bcrypt.hash(newPassword, salt);
 
-        // Clear reset token fields
+        // Clear the reset token fields
         company.resetPasswordToken = undefined;
         company.resetPasswordExpires = undefined;
 
+        // Save the updated company document
         await company.save();
 
-        res.json({ success: true, message: "Password updated successfully" });
+        // Return success response
+        res.status(200).json({ success: true, message: "Password updated successfully" });
 
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error("Error in resetPassword:", error);
+        res.status(500).json({ success: false, message: "Failed to reset password" });
     }
 };
 

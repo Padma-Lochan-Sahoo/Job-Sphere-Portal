@@ -1,5 +1,5 @@
 import express from "express"
-import { applyForJob, getUserData, getUserJobApplications, loginUser, registerUser, updateUserResume } from "../controller/user.controller.js"
+import { applyForJob, getUserData, getUserJobApplications, loginUser, registerUser, updateUserResume,forgotPasswordUser,resetPasswordUser  } from "../controller/user.controller.js"
 import upload from "../config/multer.js"
 import { protectUser } from '../middleware/auth.middleware.js'
 
@@ -23,5 +23,9 @@ router.get('/applications',protectUser, getUserJobApplications)
 // Update user profile (resume)
 router.post('/update-resume',upload.single('resume'),protectUser,updateUserResume)
 
+// Forgot Password - Request OTP
+router.post('/forgot-password', forgotPasswordUser );
 
+// Reset Password - Verify OTP and Update Password
+router.post('/reset-password/:id/:token', resetPasswordUser);
 export default router
