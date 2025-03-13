@@ -274,7 +274,7 @@ const forgotPassword = async (req, res) => {
         await company.save();
 
         // Construct reset link
-        const resetLink = `${process.env.FRONTEND_URL}/reset-password/${company._id}/${resetToken}`;
+        const resetLink = `${process.env.FRONTEND_URL}/company/reset-password/${company._id}/${resetToken}`;
 
         // Send reset email
         const mailOptions = {

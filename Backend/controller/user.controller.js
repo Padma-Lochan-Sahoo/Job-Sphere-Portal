@@ -6,6 +6,8 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import fs from 'fs';
 import path from 'path';
+import transporter from "../config/nodemailer.js";
+import crypto from "crypto";
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -264,7 +266,7 @@ export const forgotPasswordUser = async (req, res) => {
         await user.save();
 
         // Construct reset link
-        const resetLink = `${process.env.FRONTEND_URL}/reset-password/${user._id}/${resetToken}`;
+        const resetLink = `${process.env.FRONTEND_URL}/users/reset-password/${user._id}/${resetToken}`;
 
         // Send reset email
         const mailOptions = {
@@ -276,7 +278,12 @@ export const forgotPasswordUser = async (req, res) => {
                    <p>This link is valid for 10 minutes.</p>`,
         };
 
-        await transporter.sendMail(mailOptions);
+        try {
+            await transporter.sendMail(mailOptions);
+        } catch (emailError) {
+            console.error("Error sending email:", emailError);
+            return res.status(500).json({ success: false, message: "Failed to send reset email" });
+        }
 
         res.json({ success: true, message: "Password reset link sent to your email", resetLink });
 
@@ -290,6 +297,10 @@ export const resetPasswordUser = async (req, res) => {
     try {
         const { id, token } = req.params;
         const { newPassword } = req.body;
+
+        if (!newPassword || newPassword.length < 6) {
+            return res.status(400).json({ success: false, message: "Password must be at least 6 characters long" });
+        }
 
         // Hash token to match the stored hashed token
         const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
@@ -322,3 +333,9 @@ export const resetPasswordUser = async (req, res) => {
         res.status(500).json({ success: false, message: "Failed to reset password" });
     }
 };
+
+
+// const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+// if (!passwordRegex.test(newPassword)) {
+//     return res.status(400).json({ success: false, message: "Password must contain at least one uppercase letter, one number, and one special character" });
+// }
