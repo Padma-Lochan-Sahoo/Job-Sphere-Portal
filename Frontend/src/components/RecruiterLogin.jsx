@@ -132,7 +132,7 @@ const RecruiterLogin = () => {
                         className='text-sm text-blue-600 cursor-pointer mt-4'
                         onClick={() => {
                             setShowRecruiterLogin(false);
-                            navigate('/forgot-password');
+                            navigate('/company/forgot-password');
                         }}
                     >
                         Forgot Password?

@@ -102,7 +102,7 @@ const UserLogin = () => {
                 {state === 'Login' && <p className='text-sm text-blue-600 cursor-pointer mt-4'
                 onClick={() => {
                     setShowUserLogin(false);
-                    navigate('/forgot-password');
+                    navigate('/users/forgot-password');
                 }}
                 >Forgot Password?</p>}
                 <button className='bg-blue-600 w-full text-white py-2 rounded-full mt-4' type='submit'>

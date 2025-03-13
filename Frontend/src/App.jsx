@@ -15,6 +15,8 @@ import ManageJobs from './pages/ManageJobs';
 import ViewApplications from './pages/ViewApplications';
 import 'quill/dist/quill.snow.css';
 import { ToastContainer } from 'react-toastify';
+import UserForgotPassword from './components/UserForgotPassword';
+import UserResetPassword from './components/UserResetPassword';
 
 const App = () => {
   const { showRecruiterLogin, showUserLogin, companyToken, userToken } = useContext(AppContext);
@@ -28,8 +30,11 @@ const App = () => {
       <Routes>
         {/* Public Route */}
         <Route path="/" element={<Home />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password/:id/:token" element={<ResetPassword />} />
+        <Route path="/company/forgot-password" element={<ForgotPassword />} />
+        <Route path="/company/reset-password/:id/:token" element={<ResetPassword />} />
+
+        <Route path="/users/forgot-password" element={<UserForgotPassword/>}/>
+        <Route path='/users/reset-password/:id/:token' element={<UserResetPassword/>}/>
 
         {/* User Protected Routes (only accessible if logged in as a user) */}
         <Route
