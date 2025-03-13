@@ -4,7 +4,10 @@ import Home from './pages/Home';
 import ApplyJob from './pages/ApplyJob';
 import Applications from './pages/Applications';
 import RecruiterLogin from './components/RecruiterLogin';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
 import UserLogin from './components/UserLogin';  // Import User Login Modal
+
 import { AppContext } from './context/AppContext';
 import Dashboard from './pages/Dashboard';
 import AddJob from './pages/AddJob';
@@ -25,6 +28,8 @@ const App = () => {
       <Routes>
         {/* Public Route */}
         <Route path="/" element={<Home />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:id/:token" element={<ResetPassword />} />
 
         {/* User Protected Routes (only accessible if logged in as a user) */}
         <Route

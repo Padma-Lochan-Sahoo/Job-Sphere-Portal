@@ -4,7 +4,7 @@ import { assets, JobCategories, JobLocations } from "../assets/assets";
 import JobCard from "./JobCard";
 
 const JobListing = () => {
-  const { isSearched, searchFilter, setSearchFilter, jobs } =
+  const { isSearched, searchFilter, setSearchFilter, jobs,setShowUserLogin } =
     useContext(AppContext);
 
   const [showFilter, setShowFilter] = useState(false);

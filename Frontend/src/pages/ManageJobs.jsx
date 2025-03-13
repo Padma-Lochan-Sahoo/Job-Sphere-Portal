@@ -1,5 +1,4 @@
 import React, { useState,useContext, useEffect } from 'react'
-import { manageJobsData } from '../assets/assets'
 import moment from 'moment'
 import { useNavigate } from 'react-router-dom'
 import { AppContext } from '../context/AppContext'

@@ -1,21 +1,20 @@
-import { createContext, useEffect, useState } from "react";
-import axios from "axios";
-import { toast } from "react-toastify";
+import { createContext, useEffect, useState } from 'react';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const AppContext = createContext();
 
 const AppContextProvider = (props) => {
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-    const [searchFilter, setSearchFilter] = useState({
-        title: "",
-        location: ""
-    });
-
+    const [searchFilter, setSearchFilter] = useState({ title: '', location: '' });
     const [isSearched, setIsSearched] = useState(false);
     const [jobs, setJobs] = useState([]);
     const [showRecruiterLogin, setShowRecruiterLogin] = useState(false);
-    const [showUserLogin, setShowUserLogin] = useState(false);  // Added for user login modal
+    const [showUserLogin, setShowUserLogin] = useState(false);
+
+    // Role state
+    const [role, setRole] = useState(null); // 'recruiter' or 'user'
 
     // Recruiter states
     const [companyToken, setCompanyToken] = useState(null);
@@ -35,7 +34,7 @@ const AppContextProvider = (props) => {
             if (data.success) {
                 setJobs(data.jobs);
             } else {
-                toast.error(data.message || "Failed to fetch jobs");
+                toast.error(data.message || 'Failed to fetch jobs');
             }
         } catch (error) {
             toast.error(error.message);
@@ -47,9 +46,8 @@ const AppContextProvider = (props) => {
         try {
             if (!companyToken) return;
             const { data } = await axios.get(`${backendUrl}/api/company/company`, {
-                headers: { Authorization: `Bearer ${companyToken}` }
+                headers: { Authorization: `Bearer ${companyToken}` },
             });
-    
 
             if (data.success) {
                 setCompanyData(data.company);
@@ -64,12 +62,9 @@ const AppContextProvider = (props) => {
     // Fetch User Data
     const fetchUserData = async () => {
         try {
-            if (!userToken) {
-                return;
-            }
-    
+            if (!userToken) return;
             const { data } = await axios.get(`${backendUrl}/api/users/user`, {
-                headers: { Authorization: `Bearer ${userToken}` }
+                headers: { Authorization: `Bearer ${userToken}` },
             });
 
             if (data.success) {
@@ -78,19 +73,16 @@ const AppContextProvider = (props) => {
                 toast.error(data.message);
             }
         } catch (error) {
-            console.error("Error fetching user data:", error.response?.data || error.message);
             toast.error(error.message);
         }
     };
-    
-    
 
     // Fetch User Applications
     const fetchUserApplications = async () => {
         try {
             if (!userToken) return;
             const { data } = await axios.get(`${backendUrl}/api/users/applications`, {
-                headers: { Authorization: `Bearer ${userToken}` }
+                headers: { Authorization: `Bearer ${userToken}` },
             });
 
             if (data.success) {
@@ -108,19 +100,17 @@ const AppContextProvider = (props) => {
         try {
             const { data } = await axios.post(`${backendUrl}/api/users/login`, { email, password });
             if (data.success) {
-                // This data.token generate undefined
-
-                localStorage.setItem("userToken", data.token); // Store token in localStorage
+                localStorage.setItem('userToken', data.token);
                 setUserToken(data.token);
                 setUserData(data.user);
+                setRole('user'); // Set role to user
                 setShowUserLogin(false);
-                toast.success("Login successful!");
-
+                toast.success('Login successful!');
             } else {
                 toast.error(data.message);
             }
         } catch (error) {
-            toast.error(error.response?.data?.message || "Login failed.");
+            toast.error(error.response?.data?.message || 'Login failed.');
         }
     };
 
@@ -128,49 +118,82 @@ const AppContextProvider = (props) => {
     const registerUser = async (formData) => {
         try {
             const { data } = await axios.post(`${backendUrl}/api/users/register`, formData, {
-                headers: { "Content-Type": "multipart/form-data" },
+                headers: { 'Content-Type': 'multipart/form-data' },
             });
-    
+
             if (data.success) {
-                setUserData(data.user);
+                localStorage.setItem('userToken', data.token);
                 setUserToken(data.token);
-                localStorage.setItem("userToken", data.token);
-                toast.success("Registration successful!");
+                setUserData(data.user);
+                setRole('user'); // Set role to user
+                setShowUserLogin(false);
+                toast.success('Registration successful!');
             } else {
                 toast.error(data.message);
             }
         } catch (error) {
-            toast.error(error.response?.data?.message || "Registration failed.");
+            toast.error(error.response?.data?.message || 'Registration failed.');
         }
     };
-    
+
+    // Recruiter Login Function
+    const loginRecruiter = async (email, password) => {
+        try {
+            const { data } = await axios.post(`${backendUrl}/api/company/login`, { email, password });
+            if (data.success) {
+                localStorage.setItem('companyToken', data.token);
+                setCompanyToken(data.token);
+                setCompanyData(data.company);
+                setRole('recruiter'); // Set role to recruiter
+                setShowRecruiterLogin(false);
+                toast.success('Recruiter login successful!');
+            } else {
+                toast.error(data.message);
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Recruiter login failed.');
+        }
+    };
 
     // Logout User
     const logoutUser = () => {
         setUserToken(null);
         setUserData(null);
-        localStorage.removeItem("userToken");
-        toast.success("Logged out successfully!");
+        localStorage.removeItem('userToken');
+        setRole(null); // Reset role
+        toast.success('Logged out successfully!');
+    };
+
+    // Logout Recruiter
+    const logoutRecruiter = () => {
+        setCompanyToken(null);
+        setCompanyData(null);
+        localStorage.removeItem('companyToken');
+        setRole(null); // Reset role
+        toast.success('Recruiter logged out successfully!');
     };
 
     useEffect(() => {
         fetchJobs();
-        
+
         // Load stored recruiter token
-        const storedCompanyToken = localStorage.getItem("companyToken");
-        if (storedCompanyToken) setCompanyToken(storedCompanyToken);
+        const storedCompanyToken = localStorage.getItem('companyToken');
+        if (storedCompanyToken) {
+            setCompanyToken(storedCompanyToken);
+            setRole('recruiter'); // Set role to recruiter
+        }
 
         // Load stored user token
-        const storedUserToken = localStorage.getItem("userToken");
-        if (storedUserToken) setUserToken(storedUserToken);
+        const storedUserToken = localStorage.getItem('userToken');
+        if (storedUserToken) {
+            setUserToken(storedUserToken);
+            setRole('user'); // Set role to user
+        }
     }, []);
 
     useEffect(() => {
         if (companyToken) fetchCompanyData();
     }, [companyToken]);
-
-    
-    
 
     useEffect(() => {
         if (userToken) {
@@ -178,30 +201,41 @@ const AppContextProvider = (props) => {
             fetchUserApplications();
         }
     }, [userToken]);
-    
 
     const value = {
-        searchFilter, setSearchFilter,
-        isSearched, setIsSearched,
-        jobs, setJobs,
-        showRecruiterLogin, setShowRecruiterLogin,
-        showUserLogin, setShowUserLogin,  // Added for user login modal
-        companyToken, setCompanyToken,
-        companyData, setCompanyData,
-        userToken, setUserToken,
-        userData, setUserData,
-        userApplications, setUserApplications,
+        searchFilter,
+        setSearchFilter,
+        isSearched,
+        setIsSearched,
+        jobs,
+        setJobs,
+        showRecruiterLogin,
+        setShowRecruiterLogin,
+        showUserLogin,
+        setShowUserLogin,
+        companyToken,
+        setCompanyToken,
+        companyData,
+        setCompanyData,
+        userToken,
+        setUserToken,
+        userData,
+        setUserData,
+        userApplications,
+        setUserApplications,
         fetchUserData,
         fetchUserApplications,
-        loginUser, registerUser, logoutUser,  // Added authentication functions
-        backendUrl
+        loginUser,
+        registerUser,
+        logoutUser,
+        loginRecruiter,
+        logoutRecruiter,
+        role,
+        setRole,
+        backendUrl,
     };
 
-    return (
-        <AppContext.Provider value={value}>
-            {props.children}
-        </AppContext.Provider>
-    );
+    return <AppContext.Provider value={value}>{props.children}</AppContext.Provider>;
 };
 
 export { AppContext, AppContextProvider };

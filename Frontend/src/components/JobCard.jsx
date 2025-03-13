@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AppContext } from '../context/AppContext';
 
 const JobCard = ({ job = {} }) => {
 
   const navigate = useNavigate();
+  const { setShowUserLogin ,userToken} = useContext(AppContext)
 
   return (
     <div className='border p-6 shadow rounded'>
@@ -34,18 +36,26 @@ const JobCard = ({ job = {} }) => {
       </p>
       <div className='flex mt-4 gap-4 text-sm'>
         <button
-          onClick={() => {
-            navigate(`/apply-job/${job._id}`);
+          onClick={() => {if(userToken){
+            navigate(`/apply-job/${job._id}`)
+          }else{
             scrollTo(0, 0);
+            setShowUserLogin(true)
+
+          }
           }}
           className='bg-blue-600 px-4 py-2 text-white rounded'
         >
           Apply now
         </button>
         <button
-          onClick={() => {
-            navigate(`/apply-job/${job._id}`);
+          onClick={() => {if(userToken){
+            navigate(`/apply-job/${job._id}`)
+          }else{
             scrollTo(0, 0);
+            setShowUserLogin(true)
+
+          }
           }}
           className='text-gray-500 border border-gray-500 rounded px-4 py-2'
         >

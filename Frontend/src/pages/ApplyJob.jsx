@@ -10,13 +10,13 @@ import moment from 'moment';
 import JobCard from '../components/JobCard'
 import { toast } from "react-toastify";
 import axios from 'axios'
-import { useAuth } from '@clerk/clerk-react'
+// import { useAuth } from '@clerk/clerk-react'
 
 
 const ApplyJob = () => {
   const { id } = useParams()
 
-  const {getToken } = useAuth()
+  // const {getToken } = useAuth()
   const navigate = useNavigate()
   const [jobData,setJobData] = useState(null)
   const [isAlreadyApplied, setIsAlreadyApplied] = useState(false)
