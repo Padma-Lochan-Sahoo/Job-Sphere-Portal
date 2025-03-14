@@ -3,7 +3,7 @@ import run from "../config/gemini.js";
 
 export const jobAssistant = async (req, res) => {
     try {
-        console.log("Received request:", req.body);
+        
         const { userId, prompt } = req.body; // Get userId from request
         if (!userId || !prompt) {
             return res.status(400).json({ error: "userId and prompt are required" });
