@@ -47,7 +47,9 @@ export const clearHistory = async (req, res) => {
             return res.status(400).json({ error: "userId is required" });
         }
 
-        await Chat.findOneAndDelete({ userId });
+        // Delete all chat history related to the user
+        await Chat.deleteMany({ userId });
+
         return res.status(200).json({ message: "Chat history cleared" });
     } catch (error) {
         console.error("Error:", error);
