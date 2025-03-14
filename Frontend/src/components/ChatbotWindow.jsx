@@ -1,8 +1,9 @@
 import React, { useState, useContext, useRef, useEffect } from "react";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
-import { X, Send, Volume2, VolumeX, ArrowDown } from "lucide-react";
+import { X, Send, Volume2, VolumeX, ArrowDown, Trash } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { motion } from "framer-motion";
 
 const ChatbotWindow = ({ onClose }) => {
   const { backendUrl, userToken, userData } = useContext(AppContext);
@@ -75,6 +76,20 @@ const ChatbotWindow = ({ onClose }) => {
     }
   };
 
+  const typeMessage = async (text, delay = 200) => {
+    let botMessage = { text: "", sender: "bot" };
+    setMessages((prev) => [...prev, botMessage]);
+  
+    const words = text.split(" ");
+  
+    for (let i = 0; i < words.length; i++) {
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      botMessage.text += (i === 0 ? "" : " ") + words[i];
+      setMessages((prev) => [...prev.slice(0, -1), { ...botMessage }]);
+    }
+  };
+  
+
   const sendMessage = async () => {
     if (!input.trim() || isGenerating) return;
 
@@ -103,16 +118,7 @@ const ChatbotWindow = ({ onClose }) => {
           },
         }
       );
-
-      let responseText = data.response.split("\n");
-      let botMessage = { text: "", sender: "bot" };
-      setMessages((prev) => [...prev, botMessage]);
-
-      for (let line of responseText) {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        botMessage.text += line + "\n";
-        setMessages((prev) => [...prev.slice(0, -1), botMessage]);
-      }
+      await typeMessage(data.response, 50); 
     } catch (error) {
       console.error("Chatbot error:", error.response?.data || error.message);
     } finally {
@@ -121,35 +127,67 @@ const ChatbotWindow = ({ onClose }) => {
     }
   };
 
+  const clearChatHistory = async () => {
+    if (!userData || !userData._id) {
+      console.error("User ID is missing.");
+      return;
+    }
+  
+    try {
+      const response = await axios.post(
+        `${backendUrl}/api/chatbot/clear-history`,
+        { userId: userData._id },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+  
+      if (response.status === 200) {
+        setMessages([]);
+        console.log("Chat history cleared.");
+      }
+    } catch (error) {
+      console.error("Error clearing chat history:", error.response?.data || error.message);
+    }
+  };
+  
+
   return (
+
+
+
     <div className="fixed bottom-16 right-6 bg-white shadow-xl w-[550px] h-[620px] rounded-xl flex flex-col overflow-hidden">
-      {/* Header */}
-      <div className="bg-blue-600 text-white p-3 flex justify-between">
+      <div className="bg-blue-600 text-white p-3 flex justify-between items-center">
         <span>Chatbot</span>
-        <button onClick={onClose}>
-          <X size={20} />
-        </button>
+        <div className="flex items-center space-x-3">
+          <button onClick={clearChatHistory} className="hover:text-gray-300 transition">
+            <Trash size={20} />
+          </button>
+          <button onClick={onClose} className="hover:text-gray-300 transition">
+            <X size={20} />
+          </button>
+        </div>
       </div>
 
-      {/* Messages */}
       <div
         ref={chatRef}
         className="flex-1 overflow-y-auto p-3 space-y-2 relative"
       >
         {messages.map((msg, index) => (
-          <div
+          <motion.div
             key={index}
-            className={`flex ${
-              msg.sender === "user" ? "justify-end" : "justify-start"
-            }`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
           >
             <div
-              className={`p-2 rounded-lg break-words w-fit max-w-[75%] 
-                                ${
-                                  msg.sender === "user"
-                                    ? "bg-blue-500 text-white"
-                                    : "bg-gray-200 text-black"
-                                }`}
+              className={`p-2 rounded-lg break-words w-fit max-w-[75%] ${
+                msg.sender === "user" ? "bg-blue-500 text-white" : "bg-gray-200 text-black"
+              }`}
             >
               {msg.sender === "bot" ? (
                 <ReactMarkdown>{msg.text}</ReactMarkdown>
@@ -157,21 +195,22 @@ const ChatbotWindow = ({ onClose }) => {
                 msg.text
               )}
             </div>
-          </div>
+          </motion.div>
         ))}
 
-        {/* Typing Indicator */}
         {isTyping && (
-          <div className="p-2 bg-gray-200 text-black rounded-lg self-start w-fit">
-            Typing...
-          </div>
+          <motion.div 
+            className="p-2 bg-gray-200 text-black rounded-lg self-start w-fit"
+            animate={{ opacity: [0.3, 1, 0.3] }}
+            transition={{ repeat: Infinity, duration: 1 }}
+          >
+            ...
+          </motion.div>
         )}
 
-        {/* Empty div for scrolling */}
         <div ref={chatEndRef}></div>
       </div>
 
-      {/* Scroll to bottom button (Centered like ChatGPT) */}
       {showScrollButton && (
         <button
           className="absolute bottom-16 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white p-2 rounded-full shadow-lg"
@@ -181,7 +220,6 @@ const ChatbotWindow = ({ onClose }) => {
         </button>
       )}
 
-      {/* Input & Buttons */}
       <div className="p-3 border-t flex items-center">
         <input
           className="flex-1 border rounded-l p-2"
@@ -191,9 +229,7 @@ const ChatbotWindow = ({ onClose }) => {
         />
         <button
           className={`bg-blue-600 text-white ml-2 p-2 rounded-r ${
-            isGenerating || !input.trim()
-              ? "opacity-50 cursor-not-allowed"
-              : "cursor-pointer"
+            isGenerating || !input.trim() ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
           }`}
           onClick={sendMessage}
           disabled={isGenerating || !input.trim()}
