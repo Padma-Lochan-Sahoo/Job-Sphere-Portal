@@ -87,10 +87,14 @@ for (let [key, value] of formData.entries()) {
               onClick={updateResume}
               className='bg-green-100 text-green-600 rounded-lg px-4 py-2'>save</button>
             </>
-            :<div className='flex gap-2'>
+            :
+            
+            <div className='flex gap-2'>
+              {console.log("Resume URL:", userData.resume)}
               <a className="bg-blue-100 text-blue-600 px-4 py-2 rounded-lg" 
               target='_blank'
               rel="noopener noreferrer"
+              
               // href={userData.resume ? userData.resume.replace('/raw/upload/', '/upload/') : '#'}>
               href={userData.resume ? userData.resume.replace('/upload/', '/upload/fl_attachment/') : '#'}>
 
