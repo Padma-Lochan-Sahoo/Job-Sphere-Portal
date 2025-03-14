@@ -38,10 +38,14 @@ app.get("/debug-sentry",(req,res) => {
 import companyRoutes from "./routes//company.routes.js"
 import jobRoutes from './routes/job.routes.js'
 import userRoutes from './routes/user.routes.js'
+import chatbotRoutes from './routes/chatbot.routes.js'
+
 // routes declaration
 app.use('/api/company',companyRoutes)
 app.use('/api/jobs',jobRoutes)
 app.use('/api/users',userRoutes)
+app.use('/api/chatbot',chatbotRoutes)
+
 
 
 

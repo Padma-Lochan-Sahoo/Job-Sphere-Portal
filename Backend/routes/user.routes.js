@@ -28,4 +28,7 @@ router.post('/forgot-password', forgotPasswordUser );
 
 // Reset Password - Verify OTP and Update Password
 router.post('/reset-password/:id/:token', resetPasswordUser);
+
+
+
 export default router
