@@ -159,7 +159,7 @@ const ChatbotWindow = ({ onClose }) => {
 
 
 
-    <div className="fixed bottom-16 right-6 bg-white shadow-xl w-[550px] h-[620px] rounded-xl flex flex-col overflow-hidden">
+    <div className="fixed bottom-5 right-3 md:right-10 bg-white shadow-xl w-full max-w-[90%] sm:max-w-[350px] md:max-w-[400px] lg:max-w-[450px] h-auto max-h-[80vh] rounded-xl flex flex-col overflow-hidden">
       <div className="bg-blue-600 text-white p-3 flex justify-between items-center">
         <span>Chatbot</span>
         <div className="flex items-center space-x-3">
@@ -185,7 +185,7 @@ const ChatbotWindow = ({ onClose }) => {
             className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
           >
             <div
-              className={`p-2 rounded-lg break-words w-fit max-w-[75%] ${
+              className={`p-2 rounded-lg break-words whitespace-pre-wrap w-fit max-w-[85%] md:max-w-[75%] ${
                 msg.sender === "user" ? "bg-blue-500 text-white" : "bg-gray-200 text-black"
               }`}
             >
@@ -220,7 +220,7 @@ const ChatbotWindow = ({ onClose }) => {
         </button>
       )}
 
-      <div className="p-3 border-t flex items-center">
+      <div className="p-3 border-t flex items-center space-x-2">
         <input
           className="flex-1 border rounded-l p-2"
           value={input}
@@ -228,7 +228,7 @@ const ChatbotWindow = ({ onClose }) => {
           placeholder="Ask me something..."
         />
         <button
-          className={`bg-blue-600 text-white ml-2 p-2 rounded-r ${
+          className={`bg-blue-600 text-white ml-2 p-2 rounded ${
             isGenerating || !input.trim() ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
           }`}
           onClick={sendMessage}
