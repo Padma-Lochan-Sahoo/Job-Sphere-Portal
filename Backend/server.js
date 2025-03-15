@@ -15,7 +15,7 @@ const startServer = async () => {
 
     if (process.env.NODE_ENV !== "production") {
       const port = process.env.PORT ;
-      app.listen(port, () => {
+      app.listen(port, "0.0.0.0",() => {
         console.log(`🚀 Server running on http://localhost:${port}`);
       });
     }
