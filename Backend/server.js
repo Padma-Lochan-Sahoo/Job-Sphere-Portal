@@ -14,7 +14,7 @@ const startServer = async () => {
     console.log("✅ Cloudinary Connected");
 
     if (process.env.NODE_ENV !== "production") {
-      const port = process.env.PORT || 8000;
+      const port = process.env.PORT ;
       app.listen(port, () => {
         console.log(`🚀 Server running on http://localhost:${port}`);
       });
