@@ -12,8 +12,6 @@ const Applications = () => {
 
   const [isEdit,setIsEdit] = useState(false)
   const [resume , setResume] = useState(null)
-
-  // later
   const { backendUrl, userData , userApplications, fetchUserData,userToken,fetchUserApplications } = useContext(AppContext)
 
   const updateResume = async () => {
@@ -94,9 +92,11 @@ for (let [key, value] of formData.entries()) {
               <a className="bg-blue-100 text-blue-600 px-4 py-2 rounded-lg" 
               target='_blank'
               rel="noopener noreferrer"
-              
-              // href={userData.resume ? userData.resume.replace('/raw/upload/', '/upload/') : '#'}>
-              href={userData.resume ? userData.resume.replace('/upload/', '/upload/fl_attachment/') : '#'}>
+              // href={userData.resume ? userData.resume : '#'}
+              href={userData.resume ? userData.resume.replace('view', 'preview') : '#'}
+
+              >
+
 
                 View Resume
               </a>

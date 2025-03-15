@@ -17,6 +17,7 @@ import 'quill/dist/quill.snow.css';
 import { ToastContainer } from 'react-toastify';
 import UserForgotPassword from './components/UserForgotPassword';
 import UserResetPassword from './components/UserResetPassword';
+import Profile from './pages/Profile';
 
 const App = () => {
   const { showRecruiterLogin, showUserLogin, companyToken, userToken } = useContext(AppContext);
@@ -30,6 +31,7 @@ const App = () => {
       <Routes>
         {/* Public Route */}
         <Route path="/" element={<Home />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/company/forgot-password" element={<ForgotPassword />} />
         <Route path="/company/reset-password/:id/:token" element={<ResetPassword />} />
 

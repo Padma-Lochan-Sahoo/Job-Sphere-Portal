@@ -33,7 +33,7 @@ const UserLogin = () => {
                 formData.append('name', username);
                 formData.append('email', email);
                 formData.append('password', password);
-                if (image) formData.append('image', image);
+                if (image) formData.append('profileImage', image);
 
                 await registerUser(formData);
             }

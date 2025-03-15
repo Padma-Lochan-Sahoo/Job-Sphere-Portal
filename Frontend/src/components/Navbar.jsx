@@ -1,13 +1,16 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { AppContext } from '../context/AppContext';
 
 const Navbar = () => {
     const navigate = useNavigate();
-    
+    const [showDropdown, setShowDropdown] = useState(false);
+    const dropdownRef = useRef(null);
+
     const {
         setShowRecruiterLogin,
-        setShowUserLogin,  // Function to open user login modal
+        setShowUserLogin,
         userToken, 
         setUserToken,
         userData, 
@@ -15,59 +18,117 @@ const Navbar = () => {
         companyToken
     } = useContext(AppContext);
 
+    const handleLogout = () => {
+        localStorage.removeItem("userToken");
+        localStorage.removeItem("userData");
+        setUserToken(null); 
+        setUserData(null);
+        setShowDropdown(false);
+        window.location.reload(); 
+    };
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setShowDropdown(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
     return (
-        <div className='shadow py-4'>
+        <div className='shadow-lg py-4 bg-white relative top-0 z-50'>
             <div className='container px-4 2xl:px-20 mx-auto flex justify-between items-center'>
-                <h1 onClick={() => navigate(`/`)} className='cursor-pointer text-lg font-bold text-gray-700'>
-                    JOB SPHERE
+                
+                {/* Logo */}
+                <h1 
+                    onClick={() => navigate(`/`)} 
+                    className='cursor-pointer text-xl font-extrabold text-gray-800 hover:text-blue-700 transition-all duration-300'
+                >
+                    JOB <span className="text-blue-600">SPHERE</span>
                 </h1>
 
-                {/* If a user is logged in */}
                 {userToken ? (
-                    <div className='flex items-center gap-3'>
-                        <Link to={'/applications'}>Applied Jobs</Link>
-                        <p>|</p>
-                        <p className='max-sm:hidden'>Hi, {userData?.name}</p>
-                        <button 
-                            onClick={() => {
-                                localStorage.removeItem("userToken");
-                                localStorage.removeItem("userData");
-                                setUserToken(null); 
-                                setUserData(null);
-                                window.location.reload();// Reload page to reflect logout
-                            }} 
-                            className="text-gray-600"
+                    <div className='flex items-center gap-6 relative'>
+                        
+                        {/* Styled "Applied Jobs" Link with Cool Animation */}
+                        <Link 
+                            to={'/applications'} 
+                            className="relative text-lg font-semibold text-gray-700 hover:text-blue-700 transition-all duration-300"
                         >
-                            Logout
-                        </button>
+                            Applied Jobs
+                            <span className="absolute left-0 bottom-0 w-0 h-[3px] bg-blue-500 rounded-full transition-all duration-300 hover:w-full"></span>
+                        </Link>
+
+                        <p className="text-gray-400">|</p>
+                        <p className='max-sm:hidden text-gray-700 font-medium'>Hi, {userData?.name}</p>
+
+                        {/* Profile Image Dropdown */}
+                        <div className="relative" ref={dropdownRef}>
+                            <img 
+                                src={userData?.image || "/default-avatar.png"} 
+                                alt="User Avatar"
+                                className="w-10 h-10 rounded-full cursor-pointer border border-gray-300 hover:border-blue-500 transition duration-300 shadow-sm"
+                                onClick={() => setShowDropdown(!showDropdown)}
+                            />
+
+                            {/* Dropdown Menu with Smooth Animation */}
+                            {showDropdown && (
+                                <motion.div 
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                                    className="absolute right-0 mt-3 w-48 bg-white shadow-lg rounded-lg border border-gray-200 overflow-hidden"
+                                >
+                                    <ul className="py-2">
+                                        <li className="px-4 py-3 hover:bg-gray-100 cursor-pointer text-gray-700 font-medium transition-all">
+                                            <Link to="/profile">👤 Manage Profile</Link>
+                                        </li>
+                                        <li 
+                                            className="px-4 py-3 hover:bg-red-100 cursor-pointer text-red-500 font-medium transition-all"
+                                            onClick={handleLogout}
+                                        >
+                                            🚪 Logout
+                                        </li>
+                                    </ul>
+                                </motion.div>
+                            )}
+                        </div>
                     </div>
                 ) : companyToken ? (
-                    // If a recruiter is logged in
                     <div className='flex items-center gap-3'>
-                        <Link to={'/dashboard'}>Dashboard</Link>
+                        <Link 
+                            to={'/dashboard'} 
+                            className="text-gray-700 font-medium hover:text-blue-600 transition duration-300"
+                        >
+                            Dashboard
+                        </Link>
                         <p>|</p>
                         <button 
                             onClick={() => {
                                 localStorage.removeItem('companyToken');
                                 window.location.reload();
                             }} 
-                            className="text-gray-600"
+                            className="text-gray-600 hover:text-red-500 transition duration-300"
                         >
                             Logout
                         </button>
                     </div>
                 ) : (
-                    // If no user is logged in
                     <div className='flex gap-4 max-sm:text-xs'>
                         <button 
                             onClick={() => setShowRecruiterLogin(true)}
-                            className='text-gray-600'
+                            className='text-gray-600 font-medium hover:text-blue-600 transition duration-300'
                         >
                             Recruiter Login
                         </button>
                         <button 
                             onClick={() => setShowUserLogin(true)}
-                            className='bg-blue-600 text-white px-6 sm:px-9 py-2 rounded-full'
+                            className='bg-blue-600 text-white px-6 sm:px-9 py-2 rounded-full hover:bg-blue-700 transition duration-300'
                         >
                             Login
                         </button>
