@@ -55,14 +55,14 @@ const UserLogin = () => {
 
     return (
         <div className='absolute top-0 bottom-0 left-0 right-0 z-10 backdrop-blur-sm bg-black/30 flex justify-center items-center'>
-            <form onSubmit={onSubmitHandler} className='relative bg-white p-10 rounded-xl text-slate-500'>
+            <form onSubmit={onSubmitHandler} className='relative bg-white p-10 rounded-xl text-slate-500 w-[90%] sm:w-[400px]'>
                 <h1 className='text-center text-2xl text-neutral-700 font-medium'>User {state}</h1>
                 <p className='text-sm'>Welcome back! Please sign in to continue</p>
                 {state !== 'Login' && (
                     <div className='border px-4 py-2 flex items-center gap-2 rounded-full mt-5'>
                         <img src={assets.person_icon} alt='' />
                         <input
-                            className='outline-none text-sm'
+                            className='outline-none text-sm w-full'
                             onChange={(e) => setUsername(e.target.value)}
                             value={username}
                             type='text'
@@ -74,7 +74,7 @@ const UserLogin = () => {
                 <div className='border px-4 py-2 flex items-center gap-2 rounded-full mt-5'>
                     <img src={assets.email_icon} alt='' />
                     <input
-                        className='outline-none text-sm'
+                        className='outline-none text-sm w-full'
                         onChange={(e) => setEmail(e.target.value)}
                         value={email}
                         type='email'
@@ -85,7 +85,7 @@ const UserLogin = () => {
                 <div className='border px-4 py-2 flex items-center gap-2 rounded-full mt-5'>
                     <img src={assets.lock_icon} alt='' />
                     <input
-                        className='outline-none text-sm'
+                        className='outline-none text-sm w-full'
                         onChange={(e) => setPassword(e.target.value)}
                         value={password}
                         type='password'
@@ -95,8 +95,8 @@ const UserLogin = () => {
                 </div>
                 {state === 'Sign Up' && (
                     <div className='mt-5'>
-                        <label className='text-sm'>Upload Profile Picture:</label>
-                        <input type='file' accept='image/*' onChange={handleImageUpload} className='mt-2' />
+                        <label className='text-sm font-medium'>Upload Profile Picture:</label>
+                        <input type='file' accept='image/*' onChange={handleImageUpload} className='mt-2 w-full' />
                     </div>
                 )}
                 {state === 'Login' && <p className='text-sm text-blue-600 cursor-pointer mt-4'
