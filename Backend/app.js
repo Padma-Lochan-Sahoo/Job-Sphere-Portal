@@ -1,4 +1,3 @@
-import "./config/instrument.js"
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -15,6 +14,9 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.get('/',(req,res)=>{
+    res.send('Server is running')
+})
 
 import companyRoutes from "./routes//company.routes.js"
 import jobRoutes from './routes/job.routes.js'
