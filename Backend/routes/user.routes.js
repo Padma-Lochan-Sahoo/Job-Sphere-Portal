@@ -1,12 +1,12 @@
 import express from "express"
-import { applyForJob, getUserData, getUserJobApplications, loginUser, registerUser, updateUserResume,forgotPasswordUser,resetPasswordUser  } from "../controller/user.controller.js"
+import { applyForJob, getUserData, getUserJobApplications, loginUser, registerUser, updateUserResume,forgotPasswordUser,resetPasswordUser,updateProfile  } from "../controller/user.controller.js"
 import upload from "../config/multer.js"
 import { protectUser } from '../middleware/auth.middleware.js'
 
 const router = express.Router()
 
 // User Registration
-router.post("/register",upload.single("image"),registerUser);
+router.post("/register",upload.single("profileImage"),registerUser);
 
 // User Login
 router.post("/login",loginUser);
@@ -28,6 +28,9 @@ router.post('/forgot-password', forgotPasswordUser );
 
 // Reset Password - Verify OTP and Update Password
 router.post('/reset-password/:id/:token', resetPasswordUser);
+
+// update user profile
+router.put('/update-profile/:id',protectUser,upload.single('profileImage'),updateProfile)
 
 
 

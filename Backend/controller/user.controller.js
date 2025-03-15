@@ -35,7 +35,7 @@ export const registerUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Upload image to Cloudinary
-        const imageUpload = await cloudinary.uploader.upload(imageFile.path);
+        const imageUpload = await cloudinary.uploader.upload(imageFile.path, { folder: "profile_images" });
 
         // Create new user
         const newUser = await User.create({
@@ -45,6 +45,9 @@ export const registerUser = async (req, res) => {
             image: imageUpload.secure_url,
             resume: "",
         });
+
+        fs.unlinkSync(imageFile.path);
+
 
         res.status(201).json({
             success: true,
@@ -229,6 +232,7 @@ export const updateUserResume = async (req, res) => {
     const resumeUpload = await cloudinary.uploader.upload(resumeFile.path,{
         resource_type: "auto",
         format: "pdf",
+        folder: "resumes"
     });
       console.log("Cloudinary Upload Response:", resumeUpload);
 
@@ -341,3 +345,62 @@ export const resetPasswordUser = async (req, res) => {
 // }
 
 
+export const updateProfile = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const { name, email, password } = req.body;
+        const imageFile = req.file;
+
+        console.log("Received Data:", { userId, name, email, password, imageFile });
+
+        // Find user
+        let user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Update name and email if provided
+        if (name) user.name = name;
+        if (email) user.email = email;
+
+        // Update password if provided
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            user.password = hashedPassword;
+        }
+
+        // Handle Profile Picture Update
+        if (imageFile) {
+            // Upload new image to Cloudinary
+            console.log("Updating Image...");
+            const imageUpload = await cloudinary.uploader.upload(imageFile.path,{ folder: "profile_images" });
+            console.log("Cloudinary Upload Response:", imageUpload);
+            // Delete the old image from Cloudinary if it exists
+            if (user.image) {
+                const oldImagePublicId = user.image.split('/').slice(-2).join('/').split('.')[0];  
+                await cloudinary.uploader.destroy(oldImagePublicId);
+            }
+
+            // Save new image URL
+            user.image = imageUpload.secure_url;
+            fs.unlinkSync(imageFile.path);
+        }
+
+        // Save updated user
+        await user.save();
+        console.log("Updated User:", user);
+
+        res.status(200).json({
+            success: true,
+            message: "Profile updated successfully",
+            user: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                image: user.image,
+            },
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
