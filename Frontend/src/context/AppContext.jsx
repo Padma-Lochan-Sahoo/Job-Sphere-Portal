@@ -22,6 +22,7 @@ const AppContextProvider = (props) => {
 
     // User states
     const [userToken, setUserToken] = useState(null);
+
     const [userData, setUserData] = useState(null);
     const [userApplications, setUserApplications] = useState(null);
 

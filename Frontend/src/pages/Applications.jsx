@@ -6,13 +6,14 @@ import moment from 'moment'
 import { AppContext } from '../context/AppContext'
 import { toast } from 'react-toastify'
 import axios from "axios";
+import { useNavigate } from 'react-router-dom'
 
 
 const Applications = () => {
-
+  const navigate = useNavigate()
   const [isEdit,setIsEdit] = useState(false)
   const [resume , setResume] = useState(null)
-  const { backendUrl, userData , userApplications, fetchUserData,userToken,fetchUserApplications } = useContext(AppContext)
+  const { backendUrl, userData, userToken, userApplications, fetchUserApplications } = useContext(AppContext);
 
   const updateResume = async () => {
     try {
@@ -60,9 +61,18 @@ for (let [key, value] of formData.entries()) {
     setIsEdit(false)
     setResume(null)
   }
-  useEffect(()=>{
-    fetchUserApplications()
-  },[userToken])
+
+  useEffect(() => {
+    if (!userToken) {
+      navigate("/"); // Redirect if not logged in
+    } else {
+      fetchUserApplications();
+    }
+  }, [userToken, navigate]);
+
+  // useEffect(()=>{
+  //   fetchUserApplications()
+  // },[userToken])
 
   return (
     <>

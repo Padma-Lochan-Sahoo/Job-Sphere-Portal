@@ -10,8 +10,6 @@ import moment from 'moment';
 import JobCard from '../components/JobCard'
 import { toast } from "react-toastify";
 import axios from 'axios'
-// import { useAuth } from '@clerk/clerk-react'
-
 
 const ApplyJob = () => {
   const { id } = useParams()
@@ -109,7 +107,10 @@ const ApplyJob = () => {
             </div>
               {/* apply Now button and timeing of job posts */}
               <div className='flex flex-col justify-center text-end text-sm max-md:mx-auto max-md:text-center'>
-                <button onClick={applyHandler} className='bg-blue-600 p-2.5 px-10 text-white rounded'>{isAlreadyApplied?`Already Applied`:`Apply Now`}</button>
+                <button onClick={applyHandler} 
+                className={`bg-blue-600 p-2.5 px-10 text-white rounded ${isAlreadyApplied ? 'bg-gray-400 cursor-not-allowed':'bg-blue-600'}`}
+                disabled={isAlreadyApplied}
+                >{isAlreadyApplied?`Already Applied`:`Apply Now`}</button>
                 <p className='mt-1 text-gray-600'>Posted {moment(jobData.data).fromNow()}</p>
               </div>
 
@@ -119,7 +120,10 @@ const ApplyJob = () => {
               <div className='w-full lg:w-2/3'>
                 <h2 className='text-2xl font-bold text-neutral-700 mb-4'>Job Description</h2>
                 <div className='rich-text' dangerouslySetInnerHTML={{__html:jobData.description}}></div>
-                <button onClick={applyHandler} className='bg-blue-600 p-2.5 px-10 text-white rounded mt-10'>{isAlreadyApplied?`Already Applied`:`Apply Now`}</button>
+                <button onClick={applyHandler} 
+                className={`bg-blue-600 p-2.5 px-10 text-white rounded ${isAlreadyApplied ? 'bg-gray-400 cursor-not-allowed':'bg-blue-600'}`}
+                disabled={isAlreadyApplied}
+                >{isAlreadyApplied?`Already Applied`:`Apply Now`}</button>
               </div>
               {/* Right Section for more Jobs */}
               <div className='w-full lg:w-1/3 mt-8 lg:mt-0 lg:ml-8 space-y-5'>

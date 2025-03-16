@@ -9,7 +9,9 @@ const Navbar = () => {
     const dropdownRef = useRef(null);
 
     const {
+        showRecruiterLogin,
         setShowRecruiterLogin,
+        showUserLogin,
         setShowUserLogin,
         userToken, 
         setUserToken,
@@ -121,13 +123,27 @@ const Navbar = () => {
                 ) : (
                     <div className='flex gap-4 max-sm:text-xs'>
                         <button 
-                            onClick={() => setShowRecruiterLogin(true)}
+                            onClick={() => {
+                                if(showUserLogin){
+                                    setShowUserLogin(false);
+                                    setShowRecruiterLogin(true);
+                                }else{
+                                    setShowRecruiterLogin(true);
+                                }
+                            }}
                             className='text-gray-600 font-medium hover:text-blue-600 transition duration-300'
                         >
                             Recruiter Login
                         </button>
                         <button 
-                            onClick={() => setShowUserLogin(true)}
+                            onClick={() => {
+                                if(showRecruiterLogin){
+                                    setShowRecruiterLogin(false);
+                                    setShowUserLogin(true);
+                                }else{
+                                    setShowUserLogin(true);
+                                }
+                            }}
                             className='bg-blue-600 text-white px-6 sm:px-9 py-2 rounded-full hover:bg-blue-700 transition duration-300'
                         >
                             Login
