@@ -159,7 +159,7 @@ const ChatbotWindow = ({ onClose }) => {
 
 
 
-    <div className="fixed bottom-5 right-3 md:right-10 bg-white shadow-xl w-full max-w-[90%] sm:max-w-[350px] md:max-w-[400px] lg:max-w-[450px] h-auto max-h-[80vh] rounded-xl flex flex-col overflow-hidden">
+    <div className="fixed bottom-5 right-3 md:right-10 bg-white shadow-xl w-full max-w-[90%] sm:max-w-[350px] md:max-w-[400px] lg:max-w-[450px] h-[75vh] max-h-[80vh] rounded-xl flex flex-col overflow-hidden">
       <div className="bg-blue-600 text-white p-3 flex justify-between items-center">
         <span>Chatbot</span>
         <div className="flex items-center space-x-3">
@@ -174,7 +174,7 @@ const ChatbotWindow = ({ onClose }) => {
 
       <div
         ref={chatRef}
-        className="flex-1 overflow-y-auto p-3 space-y-2 relative"
+        className="flex-1 overflow-y-auto p-3 space-y-2 max-h-[65vh] relative"
       >
         {messages.map((msg, index) => (
           <motion.div
@@ -220,9 +220,9 @@ const ChatbotWindow = ({ onClose }) => {
         </button>
       )}
 
-      <div className="p-3 border-t flex items-center space-x-2">
+      <div className="p-3 border-t flex items-center space-x-2 bg-white">
         <input
-          className="flex-1 border rounded-l p-2"
+          className="flex-1 border rounded-l p-2 text-sm"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask me something..."
