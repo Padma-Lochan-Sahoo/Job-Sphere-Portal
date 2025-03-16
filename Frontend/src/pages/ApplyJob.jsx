@@ -109,7 +109,7 @@ const ApplyJob = () => {
             </div>
               {/* apply Now button and timeing of job posts */}
               <div className='flex flex-col justify-center text-end text-sm max-md:mx-auto max-md:text-center'>
-                <button onClick={applyHandler} className='bg-blue-600 p-2.5 px-10 text-white rounded'>{isAlreadyApplied?`Already Applied`:`Apply Now`}</button>
+                <button onClick={applyHandler} className='bg-blue-600 p-2.5 px-10 text-white rounded'>{isAlreadyApplied?`${className="opacity-50 cursor-not-allowed"}Already Applied`:`Apply Now`}</button>
                 <p className='mt-1 text-gray-600'>Posted {moment(jobData.data).fromNow()}</p>
               </div>
 
