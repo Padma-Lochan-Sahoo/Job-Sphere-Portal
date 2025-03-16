@@ -1,5 +1,5 @@
-import React, { useContext } from 'react';
-import { Route, Routes, Navigate } from 'react-router-dom';
+import React, { useContext ,useEffect} from 'react';
+import { Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import Home from './pages/Home';
 import ApplyJob from './pages/ApplyJob';
 import Applications from './pages/Applications';
@@ -19,10 +19,13 @@ import UserForgotPassword from './components/UserForgotPassword';
 import UserResetPassword from './components/UserResetPassword';
 import Profile from './pages/Profile';
 
+
 const App = () => {
   const { showRecruiterLogin, showUserLogin, companyToken, userToken } = useContext(AppContext);
 
+
   return (
+
     <div>
       {showRecruiterLogin && <RecruiterLogin />}
       {showUserLogin && <UserLogin />}  {/* Show user login modal */}
