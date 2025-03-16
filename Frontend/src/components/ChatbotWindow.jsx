@@ -174,7 +174,7 @@ const ChatbotWindow = ({ onClose }) => {
 
       <div
         ref={chatRef}
-        className="flex-1 overflow-y-auto p-3 space-y-2 max-h-[65vh] relative"
+        className="flex-1 overflow-y-auto p-3 space-y-2 max-h-[65vh]"
       >
         {messages.map((msg, index) => (
           <motion.div
