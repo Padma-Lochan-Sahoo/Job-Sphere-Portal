@@ -106,7 +106,8 @@ const AppContextProvider = (props) => {
                 setUserData(data.user);
                 setRole('user'); // Set role to user
                 setShowUserLogin(false);
-                toast.success('Login successful!');
+                // toast.success('Login successful!');
+                return data;
             } else {
                 toast.error(data.message);
             }
@@ -128,12 +129,15 @@ const AppContextProvider = (props) => {
                 setUserData(data.user);
                 setRole('user'); // Set role to user
                 setShowUserLogin(false);
-                toast.success('Registration successful!');
+                // toast.success('Registration successful!');
+                return data; 
             } else {
                 toast.error(data.message);
+                return { success: false, message: data.message };
             }
         } catch (error) {
             toast.error(error.response?.data?.message || 'Registration failed.');
+            return { success: false, message: errorMessage };
         }
     };
 

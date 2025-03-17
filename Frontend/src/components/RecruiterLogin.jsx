@@ -13,6 +13,7 @@ const RecruiterLogin = () => {
     const [email, setEmail] = useState('');
     const [image, setImage] = useState(null);
     const [isTextDataSubmited, setIsTextDataSubmited] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const { setShowRecruiterLogin, backendUrl, setCompanyToken, setCompanyData, setRole } = useContext(AppContext);
 
@@ -27,7 +28,7 @@ const RecruiterLogin = () => {
         if (state === 'Sign Up' && !isTextDataSubmited) {
             return setIsTextDataSubmited(true);
         }
-
+        setLoading(true);
         try {
             if (state === 'Login') {
                 const { data } = await axios.post(`${backendUrl}/api/company/login`, { email, password });
@@ -37,8 +38,8 @@ const RecruiterLogin = () => {
                     localStorage.setItem('companyToken', data.token);
                     setRole('recruiter'); // Set role to recruiter
                     setShowRecruiterLogin(false);
-                    navigate('/dashboard');
                     toast.success('Login successful!');
+                    setTimeout(() => navigate('/dashboard'), 1000);
                 }
             } else {
                 const formData = new FormData();
@@ -54,13 +55,15 @@ const RecruiterLogin = () => {
                     localStorage.setItem('companyToken', data.token);
                     setRole('recruiter'); // Set role to recruiter
                     setShowRecruiterLogin(false);
-                    navigate('/dashboard');
                     toast.success('Registration successful!');
+                    setTimeout(() => navigate('/dashboard'), 1000);
                 }
             }
         } catch (error) {
             const errorMessage = error.response?.data?.message || 'An error occurred. Please try again.';
             toast.error(errorMessage);
+        } finally{
+            setLoading(false)
         }
     };
 
@@ -138,8 +141,15 @@ const RecruiterLogin = () => {
                         Forgot Password?
                     </p>
                 )}
-                <button className='bg-blue-600 w-full text-white py-2 rounded-full mt-4' type='submit'>
-                    {state === 'Login' ? 'Login' : isTextDataSubmited ? 'Create Account' : 'Next'}
+                <button 
+                className='bg-blue-600 w-full text-white px-5 py-2 rounded-full mt-4 text-lg font-semibold hover:bg-blue-700 transition flex items-center justify-center' 
+                disabled={loading} 
+                type='submit'>
+                    {loading ? (
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                        state === 'Login' ? 'Login' : isTextDataSubmited ? 'Create Account' : 'Next'
+                    )}
                 </button>
                 {state === 'Login' ? (
                     <p className='mt-5 text-center'>

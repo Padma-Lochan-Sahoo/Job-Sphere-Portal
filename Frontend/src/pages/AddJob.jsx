@@ -4,6 +4,7 @@ import { JobCategories, JobLocations } from '../assets/assets'
 import axios from 'axios'
 import { AppContext } from '../context/AppContext'
 import { toast } from 'react-toastify'
+import { data } from 'react-router-dom'
 
 const AddJob = () => {
 
@@ -12,6 +13,7 @@ const AddJob = () => {
     const [category,setCategory] = useState('Programming')
     const [level,setLevel] = useState('Beginner level')
     const [salary,setSalary] = useState(0)
+    const [loading,setLoading] = useState(false)
 
     const editorRef = useRef(null)
     const quillRef = useRef(null)
@@ -20,6 +22,7 @@ const AddJob = () => {
 
     const onSubmitHandler = async (e) =>{
         e.preventDefault();
+        setLoading(true)
 
         try {
             const description = quillRef.current?.root?.innerHTML || "";
@@ -48,7 +51,9 @@ const AddJob = () => {
                 toast.error(data.message)
             }
         } catch (error) {
-            
+            toast.error(data.message)
+        } finally{
+            setLoading(false)
         }
 
     }
@@ -82,25 +87,36 @@ const AddJob = () => {
     <div className='flex flex-col sm:flex-row gap-2 w-full sm:gap-8'>
         <div>
             <p className='mb-2'>Job Category</p>
-            <select 
-            className='w-full px-3 py-2 border-2 border-gray-300 rounded'
-            value={category} // ✅ Add this
-            onChange={e=> setCategory(e.target.value)}>
-                {JobCategories.map((category,index)=>(
-                    <option key={index} value={category}>{category}</option>
-                ))}
-            </select>
+            <input
+                        list="jobCategories"
+                        className="w-full px-3 py-2 border-2 border-gray-300 rounded"
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
+                        placeholder="Select or type a category"
+                        required
+                    />
+            <datalist id="jobCategories">
+                        {JobCategories.map((category, index) => (
+                            <option key={index} value={category} />
+                        ))}
+                    </datalist>
         </div>
 
         <div>
             <p className='mb-2'>Job Location</p>
-            <select 
-            className='w-full px-3 py-2 border-2 border-gray-300 rounded'
-            onChange={e=> setLocation(e.target.value)}>
-                {JobLocations.map((location,index)=>(
-                    <option key={index} value={location}>{location}</option>
-                ))}
-            </select>
+            <input
+                        list="jobLocations"
+                        className="w-full px-3 py-2 border-2 border-gray-300 rounded"
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                        placeholder="Select or type a location"
+                        required
+                    />
+                    <datalist id="jobLocations">
+                        {JobLocations.map((location, index) => (
+                            <option key={index} value={location} />
+                        ))}
+                    </datalist>
         </div>
 
         <div>
@@ -123,8 +139,15 @@ const AddJob = () => {
         />
     </div>
     <button
-    className='w-28 py-3 mt-4 bg-black text-white rounded'
-    >Add</button>
+    className='w-28 py-3 mt-4 bg-black text-white rounded flex justify-center items-center'
+    >
+        {loading ? (
+                        <div className='w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin'>
+                        </div>
+                    ) : (
+                        "ADD"
+                    )}
+    </button>
     </form>
   )
 }

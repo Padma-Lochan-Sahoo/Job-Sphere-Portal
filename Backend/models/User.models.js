@@ -21,6 +21,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    role: {
+        type: String,
+        enum: ["job-seeker", "recruiter"],
+        default: "job-seeker" // Default role set to "job-seeker"
+    },
     resetPasswordToken: {type :String}, 
     resetPasswordExpires: {type: Date}
     

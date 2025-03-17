@@ -17,6 +17,10 @@ const companySchema = new mongoose.Schema({
     image: {
         type: String,
         required: true
+    },role: {
+        type: String,
+        enum: ["recruiter"],
+        default: "recruiter" // Default role set to "recruiter"
     },
     resetPasswordToken: {type :String}, 
     resetPasswordExpires: {type: Date}

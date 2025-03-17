@@ -29,7 +29,16 @@ const App = () => {
     <div>
       {showRecruiterLogin && <RecruiterLogin />}
       {showUserLogin && <UserLogin />}  {/* Show user login modal */}
-      <ToastContainer />
+      <ToastContainer 
+                position="bottom-right" // Moves toast to bottom-right
+                autoClose={3000} // Closes after 3 seconds
+                hideProgressBar={false} 
+                newestOnTop={true}
+                closeOnClick={true}
+                pauseOnHover={true}
+                draggable={true}
+                theme="light" // Change to "dark" if needed
+            />
       
       <Routes>
         {/* Public Route */}

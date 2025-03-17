@@ -5,6 +5,7 @@ import { X, Send, Volume2, VolumeX, ArrowDown, Trash } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { motion } from "framer-motion";
 
+
 const ChatbotWindow = ({ onClose }) => {
   const { backendUrl, userToken, userData } = useContext(AppContext);
   const [messages, setMessages] = useState([]);
@@ -17,6 +18,7 @@ const ChatbotWindow = ({ onClose }) => {
   const synth = window.speechSynthesis;
   const chatRef = useRef(null);
   const chatEndRef = useRef(null);
+
 
   useEffect(() => {
     const handleScroll = () => {

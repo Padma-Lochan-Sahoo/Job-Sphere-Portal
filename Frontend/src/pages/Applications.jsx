@@ -13,7 +13,7 @@ const Applications = () => {
   const navigate = useNavigate()
   const [isEdit,setIsEdit] = useState(false)
   const [resume , setResume] = useState(null)
-  const { backendUrl, userData, userToken, userApplications, fetchUserApplications } = useContext(AppContext);
+  const { backendUrl, userData, userToken, userApplications, fetchUserApplications,fetchUserData } = useContext(AppContext);
 
   const updateResume = async () => {
     try {

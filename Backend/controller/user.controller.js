@@ -20,6 +20,8 @@ export const registerUser = async (req, res) => {
         const { name, email, password } = req.body;
         const imageFile = req.file;
 
+        
+
         // Validate required fields
         if (!name || !email || !password || !imageFile) {
             return res.status(400).json({ message: "Please fill in all fields." });
@@ -44,6 +46,7 @@ export const registerUser = async (req, res) => {
             password: hashedPassword,
             image: imageUpload.secure_url,
             resume: "",
+            role: "job-seeker", // Auto-assign role
         });
 
         fs.unlinkSync(imageFile.path);
@@ -56,6 +59,7 @@ export const registerUser = async (req, res) => {
                 _id: newUser._id,
                 name: newUser.name,
                 email: newUser.email,
+                role: newUser.role, // Now always "job-seeker"
                 image: newUser.image,
             },
             token: generateToken(newUser._id),
@@ -128,6 +132,33 @@ export const getUserData = async (req,res) => {
     }
 }
 
+
+// Function to send email to recruiter
+const sendApplicationEmailToRecruiter = async (recruiterEmail, recruiterName, applicantName, applicantEmail, jobTitle) => {
+    try {
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: recruiterEmail,
+            subject: `New Job Application for ${jobTitle}`,
+            html: `
+                <h2>New Job Application Received</h2>
+                <p>Dear ${recruiterName},</p>
+                <p>A new job application has been submitted for the position of <strong>${jobTitle}</strong>.</p>
+                <p><strong>Applicant Name:</strong> ${applicantName}</p>
+                <p><strong>Applicant Email:</strong> ${applicantEmail}</p>
+                <br>
+                <p>Log in to your dashboard to view the complete application details.</p>
+                <br>
+                <p>Best Regards,<br>Your Job Portal Team</p>
+            `,
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log(`Email sent to recruiter: ${recruiterEmail}`);
+    } catch (error) {
+        console.error("Error sending job application email:", error);
+    }
+};
 
 // Apply for a job
 export const applyForJob = async (req,res) => {

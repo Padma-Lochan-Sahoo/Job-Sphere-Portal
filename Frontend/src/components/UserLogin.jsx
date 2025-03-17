@@ -11,8 +11,9 @@ const UserLogin = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [image, setImage] = useState(null);
+    const [loading, setLoading] = useState(false);
 
-    const { setShowUserLogin, loginUser, registerUser, setRole } = useContext(AppContext);
+    const { setShowUserLogin, loginUser, registerUser, setRole,userData } = useContext(AppContext);
 
     const handleImageUpload = (e) => {
         setImage(e.target.files[0]);
@@ -25,9 +26,12 @@ const UserLogin = () => {
             return;
         }
 
+        setLoading(true);
+
         try {
+            let userDataResponse
             if (state === 'Login') {
-                await loginUser(email, password);
+                userDataResponse = await loginUser(email, password);
             } else {
                 const formData = new FormData();
                 formData.append('name', username);
@@ -35,14 +39,25 @@ const UserLogin = () => {
                 formData.append('password', password);
                 if (image) formData.append('profileImage', image);
 
-                await registerUser(formData);
+                userDataResponse = await registerUser(formData);
             }
-            setRole('user'); // Set role to user
-            setShowUserLogin(false);
-            navigate('/');
+            console.log('User Data Response:', userDataResponse);  // ✅ Debugging
+            if (userDataResponse) {
+                localStorage.setItem('user', JSON.stringify(userDataResponse.user));
+                toast.success(`Welcome, ${userDataResponse.user.name}!`);
+                setShowUserLogin(false);
+
+                // Add a slight delay before navigating for better UX
+                setTimeout(() => navigate('/'), 1000);
+            }
+            // setRole('user'); // Set role to user
+            // setShowUserLogin(false);
+            // navigate('/');
         } catch (error) {
             const errorMessage = error.response?.data?.message || 'An error occurred. Please try again.';
             toast.error(errorMessage);
+        } finally {
+            setLoading(false); // 🔵 Stop loading after request completes
         }
     };
 
@@ -71,10 +86,10 @@ const UserLogin = () => {
                         />
                     </div>
                 )}
-                <div className='border px-4 py-2 flex items-center gap-2 rounded-full mt-5'>
+                <div className='border px-4 py-2 flex items-center gap-2 rounded-full mt-5 w-full'>
                     <img src={assets.email_icon} alt='' />
                     <input
-                        className='outline-none text-sm w-full'
+                        className='outline-none text-sm w-full flex-1'
                         onChange={(e) => setEmail(e.target.value)}
                         value={email}
                         type='email'
@@ -105,8 +120,16 @@ const UserLogin = () => {
                     navigate('/users/forgot-password');
                 }}
                 >Forgot Password?</p>}
-                <button className='bg-blue-600 w-full text-white py-2 rounded-full mt-4' type='submit'>
-                    {state === 'Login' ? 'Login' : 'Sign Up'}
+                <button 
+                className='bg-blue-600 w-full text-white px-5 py-2 rounded-full mt-4 text-lg font-semibold hover:bg-blue-700 transition flex items-center justify-center' 
+                disabled={loading}
+                type='submit'>
+                    {loading ? (
+                        <div className='w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin'>
+                        </div>
+                    ) : (
+                        state === 'Login' ? 'Login' : 'Sign Up'
+                    )}
                 </button>
                 {state === 'Login' ? (
                     <p className='mt-5 text-center'>

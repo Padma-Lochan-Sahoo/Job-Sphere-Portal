@@ -6,6 +6,7 @@ import Job from "../models/job.models.js";
 import JobApplication from "../models/jobApplication.models.js";
 import transporter from "../config/nodemailer.js";
 import crypto from "crypto";
+import User from "../models/User.models.js";
 
 // Register new company
 const registerCompany = async (req , res) => {
@@ -42,7 +43,8 @@ const registerCompany = async (req , res) => {
             name,
             email,
             password: hashedPassword,
-            image: imageUpload.secure_url
+            image: imageUpload.secure_url,
+            role: "recruiter" // Auto-assign recruiter role
         })
         res.status(201).json({
             message: "Company created successfully",
@@ -51,6 +53,7 @@ const registerCompany = async (req , res) => {
                 _id : company._id,
                 name: company.name,
                 email: company.email,
+                role: company.role, // Now always "recruiter"
                 image: company.image
             },
             token: generateToken(company._id)
@@ -122,6 +125,70 @@ const getCompanyData = async (req , res) => {
 
 }
 
+
+// Function to send job email notifications
+const sendJobEmailToUsers = async (job) => {
+    try {
+        const jobSeekers = await User.find(); // Fetch all users
+
+        if (jobSeekers.length === 0) return; // No users to notify
+
+        const emailList = jobSeekers.map(user => user.email);
+
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: emailList, // Send to all job seekers
+            subject: `🚀 Exciting Job Opportunity: ${job.title} - Apply Now!`,
+            html: `
+                <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f9f9f9;">
+                    <div style="background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <h2 style="color: #2c3e50;">🌟 New Job Alert: ${job.title} 🌟</h2>
+                        
+                        <p style="font-size: 16px; color: #333;">
+                            A new job opportunity has just been posted that might be a great fit for you. Don't miss out!
+                        </p>
+
+                        <div style="border-left: 4px solid #3498db; padding-left: 10px; margin: 10px 0;">
+                            <p><strong>📍 Location:</strong> ${job.location}</p>
+                            <p><strong>💰 Salary:</strong> ${job.salary}</p>
+                            <p><strong>⚡ Experience Level:</strong> ${job.level}</p>
+                            <p><strong>🏢 Category:</strong> ${job.category}</p>
+                        </div>
+
+                        <p style="font-size: 16px; color: #333;">
+                            🔥 <strong>Hurry! Applications are open for a limited time.</strong> Click below to apply now:
+                        </p>
+
+                        <div style="text-align: center; margin-top: 20px;">
+                            <a href="${process.env.FRONTEND_URL}/jobs/${job._id}" 
+                               style="background-color: #3498db; color: white; padding: 12px 24px; text-decoration: none; 
+                               font-size: 16px; border-radius: 5px; display: inline-block;">
+                                👉 Apply Now
+                            </a>
+                        </div>
+
+                        <p style="margin-top: 20px; font-size: 14px; color: #555;">
+                            Best wishes,<br>
+                            <strong>Job Sphere Team</strong>
+                        </p>
+                        
+                        <hr style="border: 0; height: 1px; background: #ddd; margin-top: 20px;">
+                        <p style="font-size: 12px; color: #888; text-align: center;">
+                            This is an automated message. Please do not reply.
+                        </p>
+                    </div>
+                </div>
+            `,
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log("🚀 Job email notifications sent successfully!");
+    } catch (error) {
+        console.error("❌ Error sending job notification emails:", error);
+    }
+};
+
+
 // Post a new job
 const postJob = async (req , res) => {
     const { title , description , location ,salary, level ,category} = req.body
@@ -143,6 +210,10 @@ const postJob = async (req , res) => {
         })
 
         await newJob.save()
+
+        // Send email to all users
+        await sendJobEmailToUsers(newJob);
+
         res.json({
             success: true ,
             message: "Job posted successfully",
@@ -202,6 +273,42 @@ const getCompanyPostedJobs = async (req , res) => {
     }
 }
 
+
+// Function to send status update email
+const sendStatusEmail = async (email, job, status) => {
+    try {
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: `Update on Your Job Application for ${job.title}`,
+            html: `
+                <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+                    <h2 style="color: #2c3e50;">📢 Job Application Status Update</h2>
+                    <p>Dear Applicant,</p>
+                    <p>We hope you're doing well! We wanted to update you on the status of your job application.</p>
+                    
+                    <p><strong>Job Title:</strong> ${job.title}</p>
+                    <p><strong>Application Status:</strong> <span style="color: ${status === 'Accepted' ? 'green' : status === 'Rejected' ? 'red' : '#f39c12'}; font-weight: bold;">${status}</span></p>
+                    
+                    <p>We appreciate your interest in this opportunity. Please log in to your account to view more details.</p>
+
+                    <p>Best Regards,</p>
+                    <p><strong>Job Sphere Team</strong></p>
+                    <hr style="border: 0; height: 1px; background: #ddd;">
+                    <p style="font-size: 12px; color: #888;">This is an automated message. Please do not reply to this email.</p>
+                </div>
+            `,
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log(`Status update email sent to ${email}`);
+    } catch (error) {
+        console.error("Error sending job application status email:", error);
+    }
+};
+
+
+
 // Change Job Application Status
 const changeJobApplicationStatus = async (req , res) => {
     try {
@@ -213,12 +320,16 @@ const changeJobApplicationStatus = async (req , res) => {
             { _id: id }, 
             { status }, 
             { new: true } // Ensures it returns the updated document
-        );
+        ).populate('userId', 'email')
+        .populate('jobId', 'title');
         res.json({
             success: true,
             message: "Job application status updated successfully",
             application: updatedApplication // Return updated data
         });
+
+        // Send status update email
+        await sendStatusEmail(updatedApplication.userId.email, updatedApplication.jobId, status);
         
     } catch (error) {
         res.json({
