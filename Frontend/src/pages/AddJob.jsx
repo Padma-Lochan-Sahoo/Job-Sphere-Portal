@@ -26,8 +26,10 @@ const AddJob = () => {
 
         try {
             const description = quillRef.current?.root?.innerHTML || "";
-            if (!description.trim()) {
-                return toast.error("Job description is required!");
+            if (!title.trim() || !description.trim() || !location.trim() || !category.trim() || salary <= 0) {
+                toast.error("Please fill all the fields!");
+                setLoading(false);
+                return;
             }
 
             const { data } = await axios.post(backendUrl+'/api/company/post-job',
@@ -35,11 +37,6 @@ const AddJob = () => {
                     headers: { Authorization: `Bearer ${companyToken}` }
                 }
             )
-
-            if (!title || !description || !location || !category || !salary) {
-                return toast.error("Please fill all the fields!");
-            }
-            
 
 
             if(data.success){

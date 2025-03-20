@@ -111,7 +111,10 @@ const ApplyJob = () => {
                 className={`bg-blue-600 p-2.5 px-10 text-white rounded ${isAlreadyApplied ? 'bg-gray-400 cursor-not-allowed':'bg-blue-600'}`}
                 disabled={isAlreadyApplied}
                 >{isAlreadyApplied?`Already Applied`:`Apply Now`}</button>
-                <p className='mt-1 text-gray-600'>Posted {moment(jobData.data).fromNow()}</p>
+{console.log(jobData)}
+<p className='mt-1 text-gray-600'>Posted {moment(jobData.date).fromNow()}</p>
+
+
               </div>
 
           </div>
