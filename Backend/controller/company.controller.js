@@ -160,7 +160,7 @@ const sendJobEmailToUsers = async (job) => {
                         </p>
 
                         <div style="text-align: center; margin-top: 20px;">
-                            <a href="${process.env.FRONTEND_URL}/jobs/${job._id}" 
+                            <a href="${process.env.FRONTEND_URL}/api/jobs/${job._id}" 
                                style="background-color: #3498db; color: white; padding: 12px 24px; text-decoration: none; 
                                font-size: 16px; border-radius: 5px; display: inline-block;">
                                 👉 Apply Now
