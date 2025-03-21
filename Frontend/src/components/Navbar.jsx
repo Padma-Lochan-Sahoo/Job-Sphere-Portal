@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { AppContext } from '../context/AppContext';
 
+
 const Navbar = () => {
     const navigate = useNavigate();
     const [showDropdown, setShowDropdown] = useState(false);
@@ -42,7 +43,7 @@ const Navbar = () => {
     }, []);
 
     return (
-        <div className='shadow-lg py-4 bg-white relative top-0 z-50'>
+        <div className='shadow-lg py-3 bg-white relative top-0 z-50'>
             <div className='container px-4 2xl:px-20 mx-auto flex justify-between items-center'>
                 
                 {/* Logo */}
@@ -50,7 +51,7 @@ const Navbar = () => {
                     onClick={() => navigate(`/`)} 
                     className='cursor-pointer text-xl font-extrabold text-gray-800 hover:text-blue-700 transition-all duration-300'
                 >
-                    JOB <span className="text-blue-600">SPHERE</span>
+                    JOB<span className="text-blue-600">SPHERE</span>
                 </h1>
 
                 {userToken ? (

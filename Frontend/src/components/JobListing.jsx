@@ -4,7 +4,7 @@ import { assets, JobCategories, JobLocations } from "../assets/assets";
 import JobCard from "./JobCard";
 
 const JobListing = () => {
-  const { isSearched, searchFilter, setSearchFilter, jobs,setShowUserLogin } =
+  const { isSearched, searchFilter, setSearchFilter, jobs, setShowUserLogin } =
     useContext(AppContext);
 
   const [showFilter, setShowFilter] = useState(false);
@@ -152,7 +152,7 @@ const JobListing = () => {
         <p className="mb-8">Get your desired job from top companies</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {filteredJobs
-            .slice((currentPage - 1) * 6, currentPage * 6)
+            .slice((currentPage - 1) * 9, currentPage * 9)
             .map((job) => (
               <JobCard key={job.id} job={job} />
             ))}
@@ -167,9 +167,10 @@ const JobListing = () => {
                 alt=""
               />
             </a>
-            {/* {Array.from({ length: Math.ceil(filteredJobs.length / 6) }).map(
+
+            {Array.from({ length: Math.ceil(filteredJobs.length / 9) }).map(
               (_, index) => (
-                <a href="#job-list" key={`page-${index + 1}`}>
+                <a href="#job-list" key={index}>
                   <button
                     className={`w-10 h-10 flex items-center justify-center border border-gray-300 rounded ${
                       currentPage === index + 1
@@ -182,22 +183,9 @@ const JobListing = () => {
                   </button>
                 </a>
               )
-            )} */}
+            )}
 
-{Array.from({ length: Math.ceil(filteredJobs.length / 6) }).map((_, index) => (
-  <a href="#job-list" key={index}>
-    <button
-      className={`w-10 h-10 flex items-center justify-center border border-gray-300 rounded ${
-        currentPage === index + 1 ? 'bg-blue-100 text-blue-500' : 'text-gray-500'
-      }`}
-      onClick={() => setCurrentPage(index + 1)}
-    >
-      {index + 1}
-    </button>
-  </a>
-))}
-
-            <a  href="#job-list">
+            <a href="#job-list">
               <img
                 onClick={() =>
                   setCurrentPage(
