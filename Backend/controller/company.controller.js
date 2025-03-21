@@ -156,16 +156,9 @@ const sendJobEmailToUsers = async (job) => {
                         </div>
 
                         <p style="font-size: 16px; color: #333;">
-                            🔥 <strong>Hurry! Applications are open for a limited time.</strong> Click below to apply now:
+                            🔥 <strong>Hurry! Applications are open for a limited time.</strong>
                         </p>
 
-                        <div style="text-align: center; margin-top: 20px;">
-                            <a href="${process.env.FRONTEND_URL}/api/jobs/${job._id}" 
-                               style="background-color: #3498db; color: white; padding: 12px 24px; text-decoration: none; 
-                               font-size: 16px; border-radius: 5px; display: inline-block;">
-                                👉 Apply Now
-                            </a>
-                        </div>
 
                         <p style="margin-top: 20px; font-size: 14px; color: #555;">
                             Best wishes,<br>
