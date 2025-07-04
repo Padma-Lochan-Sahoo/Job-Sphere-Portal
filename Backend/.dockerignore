@@ -1,0 +1,21 @@
+# Node modules
+node_modules
+
+# Environment files
+.env
+.env.sample
+
+# Logs
+npm-debug.log
+*.log
+
+# Docker & Compose
+Dockerfile
+docker-compose.yml
+
+# Vercel config (not needed in Docker)
+vercel.json
+
+# OS-specific
+.DS_Store
+Thumbs.db

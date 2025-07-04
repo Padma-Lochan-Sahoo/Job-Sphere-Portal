@@ -43,7 +43,7 @@ const Navbar = () => {
     }, []);
 
     return (
-        <div className='shadow-lg py-3 bg-white top-0 z-50 fixed'>
+        <div className='shadow-lg py-3 bg-white relative top-0 z-50'>
             <div className='container px-4 2xl:px-20 mx-auto flex justify-between items-center'>
                 
                 {/* Logo */}
