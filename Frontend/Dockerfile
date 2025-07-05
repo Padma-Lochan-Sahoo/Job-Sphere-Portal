@@ -1,21 +1,24 @@
-# Build stage
+# Stage 1 - Builder
 FROM node:18-alpine as build
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
+# Only copy package files first (enables caching)
+COPY package.json package-lock.json ./
 
+# Install with clean reproducible method
+RUN npm ci --frozen-lockfile
+
+# Now copy remaining source code
 COPY . .
 
+# Build the React/Vite app
 RUN npm run build
 
-# Serve stage
+# Stage 2 - Nginx for serving static files
 FROM nginx:alpine
 
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Remove default nginx config and add custom if needed
 EXPOSE 80
-
 CMD ["nginx", "-g", "daemon off;"]
