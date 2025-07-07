@@ -137,11 +137,4 @@ Contributions are welcome! Feel free to open issues or submit pull requests for 
 
 This project is licensed under the [MIT License](LICENSE).
 
-```
 
----
-
-✅ You can now **copy and paste** the above directly into your `README.md` file in your repository — it will render correctly without any YAML or Markdown errors.
-
-Let me know if you'd like me to also provide this as a downloadable `.md` file.
-```
