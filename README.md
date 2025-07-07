@@ -1,6 +1,3 @@
----
-
-````markdown
 # 💼 JobSphere Portal
 
 ## 📝 Description
@@ -93,27 +90,27 @@ npm run dev
 
 ## 🐳 Docker Commands
 
-### 🔐 Login:
+### 🔐 Login
 
 ```bash
 docker login
 ```
 
-### 🔨 Build Images:
+### 🔨 Build Images
 
 ```bash
 docker build -t padma272/jobsphere-frontend:latest ./Frontend
 docker build -t padma272/jobsphere-backend:latest ./Backend
 ```
 
-### ⬆️ Push Images:
+### ⬆️ Push Images
 
 ```bash
 docker push padma272/jobsphere-frontend:latest
 docker push padma272/jobsphere-backend:latest
 ```
 
-### ⬇️ Pull Images:
+### ⬇️ Pull Images
 
 ```bash
 docker pull padma272/jobsphere-frontend:latest
@@ -144,11 +141,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-Let me know if you want:
-- Badges (e.g. `Build Passing`, `Docker Pulls`, etc.)
-- GitHub Actions support
-- To generate a PDF version of this README for offline sharing
+✅ You can now **copy and paste** the above directly into your `README.md` file in your repository — it will render correctly without any YAML or Markdown errors.
 
-Would you like me to update and save this version in a file so you can copy it directly?
+Let me know if you'd like me to also provide this as a downloadable `.md` file.
 ```
-
